@@ -4,17 +4,24 @@ import * as Build from "./templates"
 
 // postybirb stuff
 
+/**
+ * An object containing everything postybirb will send;
+ * the workhorse of this worker.
+ */
 export class Post {  
 
     title:string | File | null
     description:string | File | null
     rating:string | File | null
+    /** comma-separated tags */
     tags:string | File | null
+    /** post images */
     images:Array<PostImage> = []
+    /** embed color */
     color:string|null = null
 
     /**
-     * Turns postybirb data into a post
+     * Turns postybirb data into a post to embed
      * @param POSTY_BIRB_FORM_DATA 
      */
     constructor(POSTY_BIRB_FORM_DATA:FormData) {
@@ -63,11 +70,11 @@ export class Post {
     }
 
     /**
-     * Check if the form data is valid as per:
+     * checks if the form data is valid as per:
      * https://github.com/mvdicarlo/postybirb/blob/main/docs/CUSTOM_WEBSITE.md
      * 
      * Throws error if not.
-     * @param FORM_DATA - Form data from the request
+     * @param FORM_DATA - form data from the request
      */
     validateFormData(FORM_DATA:FormData){
         // post stuffs
@@ -78,28 +85,38 @@ export class Post {
 
         // files (at least one needed)
         if(!FORM_DATA.has("file")) throw "'file' field is missing from form data!"
+
+        // TODO validation for custom fields 
     }
 
+    /**
+     * being uploading each of the images to a bucket.  
+     * (discord media components require a url to be used)
+     */
     async uploadImagesToBucket(){
         for (let index = 0; index < this.images.length; index++) {
             await this.images[index].uploadImageToBucket()
         }
     }
 
+    /**
+     * sends the post to discord via a (pre-defined) webhook.
+     */
     async dispatchToDiscord(){
         
+        // build to post according to the template
         let body; 
         body = Build.DiscordEmbed(this)
         
-        console.log(body)
+        console.log("built post:",body) // debug
 
+        // construct request and send it
         const url = `${env.CHANNEL_WEBHOOK}?with_components=true`;
         const options = {method: 'POST', headers: {'content-type': 'application/json'}, body };
-
         try {
             const response = await fetch(url, options);
             const data = await response.text()
-            console.log("discords' response",data)
+            console.log("discords' response:",data)
         } catch (error) {
             throw error
         }
@@ -108,15 +125,27 @@ export class Post {
 
 // image stuff
 
+/**
+ * class for managing image information.
+ */
 export class PostImage {
+    /** image file name */
     name:string
-    type:string
+    /** image file MIME */
+    type:string 
+    /** image description/alt text */
     altText:string|null = null
+    /** image file promise (to upload later) */
     image:Promise<Uint8Array<ArrayBufferLike>>
+    /** image thumbnail promise (to upload later) */
     thumbnail:Promise<Uint8Array<ArrayBufferLike>>|undefined = undefined
-    previewURL:string|undefined = undefined;
+    /** image actually displayed on discord */ 
+    previewURL:string|undefined = undefined; 
+    /** array of image sources */
     sources:Array<ImageSource> = []
+    /** should the image be blured? */
     spoiled:boolean = false
+    /** cw/spoiler text for image */
     contentWarning:string|null = null
 
     constructor(IMAGE_FILE:File){
@@ -125,23 +154,39 @@ export class PostImage {
         this.image = IMAGE_FILE.bytes()
     }
 
+    /**
+     * uploads the image to the bucket and sets the preview id
+     */
     async uploadImageToBucket(){
+
+        // id for the bucket
         let UUID = crypto.randomUUID()
         let key = `POSTY-${UUID}`
-        await env.TEMP_BUCKET.put(key, await this.image , {
-          httpMetadata: {
-					contentType: this.type,
-                    
-				},
-            customMetadata:{ext: this.type}
-        });
-        this.previewURL=`${env.BUCKET_URL}${key}`
+
+        // attempt to upload the file
+        try {
+            await env.TEMP_BUCKET.put(key, await this.image , {
+                httpMetadata: { contentType: this.type, },
+                customMetadata:{ext: this.type}
+            }); 
+
+            // make sure you set preview url
+            this.previewURL=`${env.BUCKET_URL}${key}`
+        } catch (error) {
+            throw error
+        }
+
+        
     }
 
+    /**
+     * shapes the image data into a discord media component
+     * @returns - discord media component
+     */
     imageComponent():any{
         let component:any = {
             "media": {
-            "url": `${this.previewURL}${this.type=="image/gif"?".gif":""}`
+            "url": `${this.previewURL}${this.type=="image/gif"?".gif":""}` // discord can't read, apparently
             },
             "spoiler": this.spoiled,
             
@@ -152,6 +197,10 @@ export class PostImage {
         return component
     }
 
+    /**
+     * shapes the image sources into a discord button row component
+     * @returns - discord button row component
+     */
     sourceComponent():any{
         if (this.sources.length==0) return {}
         
@@ -181,6 +230,9 @@ export class PostImage {
     }
 }
 
+/**
+ * everything useful for discord button links
+ */
 export type ImageSource = {
     title:string,
     link:string,

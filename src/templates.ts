@@ -65,8 +65,6 @@ export function DiscordEmbed(POST: Types.Post):any {
 		"flags": 32768
 	}
 
-
-
     // add sources
     // TODO: add way to label image sources for respective image number
     sources.forEach((list: any,index: number)=>{

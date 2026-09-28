@@ -1,7 +1,18 @@
+// if you have any transforms you want to do,
+// i think this is a good spot for it
+
+
 import {ImageSource} from "./types"
 
 const hostRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)\.\w+/gm
 
+// here, you can have my source identification <3
+/**
+ * does some transforms on an image source depending
+ * on some hard-coded criteria
+ * @param SOURCE - url to the image source
+ * @returns - new ImageSource data to use
+ */
 export function identifySource(SOURCE:string):ImageSource{
     let title = "unkn site"
     let link = SOURCE;

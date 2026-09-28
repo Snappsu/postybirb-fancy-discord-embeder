@@ -17,9 +17,9 @@ import { Post} from "./types";
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 	
-
-
 		try {
+			// foolproof protection, surely
+			// /gen if you have a better solution feel free to fork this and use it
 			try {
 				let key = request.headers.get("secret")
 				if (key != env.API_TOKEN) throw "who are you?"
@@ -27,10 +27,13 @@ export default {
 				throw "who are you?"
 			}
 
+			// extract data from request
 			let data=await request.formData()
-			//console.log("method:\n",request.method)
-			console.log("headers:\n",request.headers)
-			console.log("data:\n",data)
+
+			//console.log("method:\n",request.method) //debug
+			//console.log("headers:\n",request.headers) //debug
+			console.log("data:\n",data) //debug
+
 			// create post data (from postybirb data)
 			let post = new Post(data)
 
@@ -40,12 +43,11 @@ export default {
 			// send to discord
 			let discordPost = await post.dispatchToDiscord()
 
+			// hopefully everything is good
 			return new Response("check discord!");
 		} catch (error) {
 			console.error(error)
 			return new Response(error?.toString());
 		}
-		
-
 	},
 } satisfies ExportedHandler<Env>;
