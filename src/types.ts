@@ -141,7 +141,7 @@ export class PostImage {
     imageComponent():any{
         let component:any = {
             "media": {
-            "url": this.previewURL
+            "url": `${this.previewURL}${this.type=="image/gif"?".gif":""}`
             },
             "spoiler": this.spoiled,
             
