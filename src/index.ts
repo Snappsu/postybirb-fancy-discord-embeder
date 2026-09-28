@@ -11,8 +11,41 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { env } from "cloudflare:workers";
+import { Post} from "./types";
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response("Hello World!");
+	
+
+
+		try {
+			try {
+				let key = request.headers.get("secret")
+				if (key != env.API_TOKEN) throw "who are you?"
+			} catch (error) {
+				throw "who are you?"
+			}
+
+			let data=await request.formData()
+			//console.log("method:\n",request.method)
+			console.log("headers:\n",request.headers)
+			console.log("data:\n",data)
+			// create post data (from postybirb data)
+			let post = new Post(data)
+
+			// upload files to temp bucket
+			await post.uploadImagesToBucket()
+
+			// send to discord
+			let discordPost = await post.dispatchToDiscord()
+
+			return new Response("check discord!");
+		} catch (error) {
+			console.error(error)
+			return new Response(error?.toString());
+		}
+		
+
 	},
 } satisfies ExportedHandler<Env>;
