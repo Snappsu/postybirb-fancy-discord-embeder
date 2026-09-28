@@ -36,6 +36,10 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
+		"ARTIST":{
+			"NAME":"Snapps",
+			"SITE":"https://snapps.dev"
+		},
 		"BUCKET_URL": "https://temp.snapps.dev/",
 		"EMBED": {
 			"DEFAULT_COLOR":"#7ec34e",

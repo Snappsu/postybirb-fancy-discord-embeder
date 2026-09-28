@@ -17,13 +17,17 @@ If not, read this: https://developers.cloudflare.com/r2/api/workers/workers-api-
 ### `vars`
 ```js
 "vars": {
-		"BUCKET_URL": "", //domain where image bucket can be accessed (ex: "https://temp.snapps.dev/")
-		"EMBED": {
-			"DEFAULT_COLOR":"", // default embed color (ex: "#7ec34e")
-			"PFP":"", // image url for the pfp for the embed (ex: "https://cdn.snapps.dev/images/me.png")
-			"USERNAME":"" // username for the embed (ex: "snapps but faster")
-		}
+	"ARTIST":{
+		"NAME":"", // artist's name
+		"SITE":"" // artist's website of choice
+	},
+	"BUCKET_URL": "", //domain where image bucket can be accessed (ex: "https://temp.snapps.dev/")
+	"EMBED": {
+		"DEFAULT_COLOR":"", // default embed color (ex: "#7ec34e")
+		"PFP":"", // image url for the pfp for the embed (ex: "https://cdn.snapps.dev/images/me.png")
+		"USERNAME":"" // username for the embed (ex: "snapps but faster")
 	}
+}
 ```
 
 ## PostyBirb

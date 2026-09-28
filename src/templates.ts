@@ -1,7 +1,11 @@
 import {env} from "cloudflare:workers"
 import * as Types from "./types"
 
-
+/**
+ * Build the embed
+ * @param POST - the post to base the embed off of
+ * @returns embed JSON string to be posted
+ */
 export function DiscordEmbed(POST: Types.Post):any {
 
     let images:any = []
@@ -51,7 +55,7 @@ export function DiscordEmbed(POST: Types.Post):any {
 				},
 				{
 					"type": 10,
-					"content": `## ${POST.title} - By Snapps\n${POST.description}`
+					"content": `## ${POST.title} - By ${env.ARTIST.NAME}\n${POST.description}`
 				},
 				{
 					"type": 14,
