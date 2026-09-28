@@ -5,8 +5,9 @@ It's very bare bones and stiff right now as I *just* refactored it from my old s
 <img width="780" height="746" alt="image" src="https://github.com/user-attachments/assets/bfb8f56a-2891-4669-8ad5-c9bf54377155" />
 
 # Setup
-## `.env`
+## `.env`/Environment Secrets
 `API_TOKEN` - The secret used to access the service
+
 `CHANNEL_WEBHOOK` - Webhook URL to where the embed should be posted
 
 ## `wrangler.jsonc`
