@@ -10,13 +10,13 @@ export function DiscordEmbed(POST: Types.Post):any {
 
     let images:any = []
     let sources:any = []
-    let contentWarningFound = false
+    let contentWarningFound = Boolean(POST.contentWarning)
 
     // content warning prep
     let contentWarning:any = [
         {
           "type": 10,
-          "content": ":warning: **CONTENT WARNING!**"
+          "content": `:warning: **CONTENT WARNING!**${POST.contentWarning?` - ${POST.contentWarning}`:""}`
         },
         {
           "type": 14,
@@ -37,7 +37,7 @@ export function DiscordEmbed(POST: Types.Post):any {
         }
 
         // sources
-        sources.push(image.sourceComponent())
+        if (image.sources.length!=0) sources.push(image.sourceComponent())
         
     })
 

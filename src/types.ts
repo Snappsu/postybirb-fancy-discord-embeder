@@ -19,6 +19,8 @@ export class Post {
     images:Array<PostImage> = []
     /** embed color */
     color:string|null = null
+    /** general content warning */
+    contentWarning:string|null = null
 
     /**
      * Turns postybirb data into a post to embed
@@ -55,10 +57,12 @@ export class Post {
                     tempImage.sources.push(Conversion.identifySource(source))
                 })
                 // alt text
-                let altText = POSTY_BIRB_FORM_DATA.get(`altText[${index}]`)
-                if(!(typeof altText === "string")) throw "altText is not a string" // ensure file is File
-                tempImage.altText = altText
-        
+                if(POSTY_BIRB_FORM_DATA.has(`altText[${index}]`)){
+                    let altText = POSTY_BIRB_FORM_DATA.get(`altText[${index}]`)
+                    if(!(typeof altText === "string")) throw "altText is not a string" // ensure file is File
+                    tempImage.altText = altText
+                }
+                
                 // thumbnail
 
                 this.images.push(tempImage)
@@ -66,6 +70,32 @@ export class Post {
         } catch (error) {
             throw (error)
         }
+
+        // tag commands
+        if (this.tags && typeof this.tags === "string"){
+            console.log(this.tags)
+            let commandTagRegex = /!(\w+)(?::([^,]+))?/gm
+            let commands = [...this.tags.matchAll(commandTagRegex)]
+            commands.forEach(command=>{
+            console.log(command)
+            switch(command[1]){
+                case "color":
+                    this.color = command[2]
+                    break;
+                case "cw":
+                    this.contentWarning = command[2].replaceAll("_"," ")
+                    break
+                case "spoiler":
+                    // TODO Per image spoiling
+                    //rn is spoils all
+                    this.images.forEach(image=>{image.spoiled=true})
+                    break
+            }
+            })
+        }
+        
+
+        // TODO: instructions to self
 
     }
 
@@ -112,7 +142,8 @@ export class Post {
 
         // construct request and send it
         const url = `${env.CHANNEL_WEBHOOK}?with_components=true`;
-        const options = {method: 'POST', headers: {'content-type': 'application/json'}, body };
+        let options = {method: 'POST', headers: {'content-type': 'application/json'}, body };
+
         try {
             const response = await fetch(url, options);
             const data = await response.text()
@@ -120,6 +151,26 @@ export class Post {
         } catch (error) {
             throw error
         }
+
+        // TO-DO Proper non-spoiler alt
+        // HACK for now
+        if(this.contentWarning){
+            
+            this.images.forEach(image=>{image.spoiled=false})
+
+            let body2 = Build.DiscordEmbed(this)
+            options = {method: 'POST', headers: {'content-type': 'application/json'}, body:body2 };
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.text()
+                console.log("discords' response:",data)
+            } catch (error) {
+                throw error
+            }
+
+        }
+        
     }
 }
 
