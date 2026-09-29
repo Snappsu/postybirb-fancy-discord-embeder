@@ -38,3 +38,13 @@ If not, read this: https://developers.cloudflare.com/r2/api/workers/workers-api-
 - Add a custom header `secret` and set it to be whatever api secret token you want to use.
 - Save
 - Enjoy!
+
+# Usage
+## Tag Commands
+all tag commands start with `!`, followed by the command name, then ends with a singular parameter
+
+`color` - hex color of the embed. ex: `!color:#ac8c2b`
+
+`cw` - general content warning. postybirb replaces spaces with underscores, so this service replaces underscores with spaces. just something to rememberex: `!cw:cute dog`
+
+`spoiler` - spoils all images in post. no arguments
